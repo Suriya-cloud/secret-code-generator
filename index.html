@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Secret Code Generator</title>
+<title>3 Secret Code Generator</title>
 
 <style>
     body {
@@ -10,7 +10,7 @@
         background: #0f172a;
         color: white;
         text-align: center;
-        padding-top: 80px;
+        padding-top: 60px;
     }
 
     input {
@@ -33,18 +33,24 @@
     }
 
     .box {
-        margin-top: 30px;
+        margin-top: 25px;
         background: #1e293b;
-        padding: 20px;
+        padding: 15px;
         display: inline-block;
         border-radius: 10px;
         width: 80%;
-        max-width: 600px;
+        max-width: 700px;
         word-break: break-all;
     }
 
-    .small {
-        font-size: 12px;
+    .code {
+        margin: 10px 0;
+        font-size: 14px;
+    }
+
+    .timer {
+        margin-top: 10px;
+        font-size: 14px;
         opacity: 0.7;
     }
 </style>
@@ -52,57 +58,84 @@
 
 <body>
 
-<h1>🔐 Secret Code Generator</h1>
+<h1>🔐 3 Secret Code Generator</h1>
 
 <input id="num" type="number" placeholder="Enter number">
 <br>
-<button onclick="generate()">Generate Code</button>
+<button onclick="start()">Start Auto Codes</button>
 
 <div class="box">
-    <h3>Output</h3>
-    <p id="result">---</p>
-    <p class="small">Changes every 30 seconds</p>
+    <h3>Outputs (auto-changing every 30s)</h3>
+
+    <div class="code" id="c1">Code 1: ---</div>
+    <div class="code" id="c2">Code 2: ---</div>
+    <div class="code" id="c3">Code 3: ---</div>
+
+    <div class="timer" id="time">Time block: ---</div>
 </div>
 
 <script>
-/* -------------------------------------------------------
-   SECRET KEY (visible in frontend — NOT truly secure)
-------------------------------------------------------- */
-const SECRET_KEY = "MyHiddenKey_12345";
+const SECRET_KEY = "UltraSecretKey_12345";
 
-/* -------------------------------------------------------
-   TIME BLOCK (changes every 30 seconds)
-------------------------------------------------------- */
 function timeBlock() {
     return Math.floor(Date.now() / 1000 / 30);
 }
 
-/* -------------------------------------------------------
-   SHA-256 helper
-------------------------------------------------------- */
-async function sha256(text) {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(text);
-    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-
-    return Array.from(new Uint8Array(hashBuffer))
+/* simple hash function (frontend demo) */
+async function hash(text) {
+    const enc = new TextEncoder();
+    const buf = await crypto.subtle.digest("SHA-256", enc.encode(text));
+    return Array.from(new Uint8Array(buf))
         .map(b => b.toString(16).padStart(2, "0"))
         .join("");
 }
 
-/* -------------------------------------------------------
-   MAIN GENERATOR
-------------------------------------------------------- */
-async function generate() {
-    let number = document.getElementById("num").value;
-    let tb = timeBlock();
+/* CODE 1 */
+async function code1(n, t) {
+    return hash("C1-" + n + "-" + t + SECRET_KEY);
+}
 
-    let raw = number + "-" + tb + "-" + SECRET_KEY;
+/* CODE 2 */
+async function code2(n, t) {
+    return hash("C2-" + (n * 2) + "-" + t + SECRET_KEY);
+}
 
-    let hash = await sha256(raw);
+/* CODE 3 (heavier mix) */
+async function code3(n, t) {
+    let base = await hash("C3-" + (n + t) + SECRET_KEY);
 
-    document.getElementById("result").innerText =
-        hash + "\n\n(Time block: " + tb + ")";
+    for (let i = 0; i < 50000; i++) {
+        base = await hash(base + i);
+    }
+
+    return base;
+}
+
+let interval;
+
+async function update() {
+    let n = document.getElementById("num").value;
+    if (!n) return;
+
+    let t = timeBlock();
+
+    document.getElementById("time").innerText = "Time block: " + t;
+
+    let [a, b, c] = await Promise.all([
+        code1(n, t),
+        code2(n, t),
+        code3(n, t)
+    ]);
+
+    document.getElementById("c1").innerText = "Code 1: " + a;
+    document.getElementById("c2").innerText = "Code 2: " + b;
+    document.getElementById("c3").innerText = "Code 3: " + c;
+}
+
+function start() {
+    clearInterval(interval);
+    update();
+    interval = setInterval(update, 3000); // refresh every 3 sec
 }
 </script>
 
