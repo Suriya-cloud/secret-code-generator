@@ -2,124 +2,138 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>3 Secret Code Generator</title>
+<title>Ultra 3 Secret Code System</title>
 
 <style>
-    body {
-        font-family: Arial;
-        background: #0f172a;
-        color: white;
-        text-align: center;
-        padding-top: 60px;
-    }
+body {
+    font-family: Arial;
+    background: radial-gradient(circle, #0f172a, #020617);
+    color: white;
+    text-align: center;
+    padding-top: 50px;
+}
 
-    input {
-        padding: 10px;
-        width: 220px;
-        font-size: 16px;
-        border-radius: 6px;
-        border: none;
-    }
+input {
+    padding: 12px;
+    width: 240px;
+    border-radius: 8px;
+    border: none;
+    font-size: 16px;
+}
 
-    button {
-        padding: 10px 20px;
-        margin-top: 10px;
-        cursor: pointer;
-        border-radius: 6px;
-        border: none;
-        background: #38bdf8;
-        color: black;
-        font-weight: bold;
-    }
+button {
+    padding: 12px 22px;
+    margin-top: 10px;
+    border-radius: 8px;
+    border: none;
+    background: #22d3ee;
+    font-weight: bold;
+    cursor: pointer;
+}
 
-    .box {
-        margin-top: 25px;
-        background: #1e293b;
-        padding: 15px;
-        display: inline-block;
-        border-radius: 10px;
-        width: 80%;
-        max-width: 700px;
-        word-break: break-all;
-    }
+.box {
+    margin-top: 25px;
+    background: rgba(255,255,255,0.05);
+    padding: 20px;
+    display: inline-block;
+    border-radius: 12px;
+    width: 85%;
+    max-width: 800px;
+    word-break: break-all;
+    backdrop-filter: blur(8px);
+}
 
-    .code {
-        margin: 10px 0;
-        font-size: 14px;
-    }
+.code {
+    margin: 12px 0;
+    font-size: 13px;
+}
 
-    .timer {
-        margin-top: 10px;
-        font-size: 14px;
-        opacity: 0.7;
-    }
+.small {
+    font-size: 12px;
+    opacity: 0.6;
+}
 </style>
 </head>
 
 <body>
 
-<h1>🔐 3 Secret Code Generator</h1>
+<h1>🔐 Ultra 3-Code Generator</h1>
 
 <input id="num" type="number" placeholder="Enter number">
 <br>
-<button onclick="start()">Start Auto Codes</button>
+<button onclick="start()">Generate & Auto Update</button>
 
 <div class="box">
-    <h3>Outputs (auto-changing every 30s)</h3>
-
     <div class="code" id="c1">Code 1: ---</div>
     <div class="code" id="c2">Code 2: ---</div>
     <div class="code" id="c3">Code 3: ---</div>
-
-    <div class="timer" id="time">Time block: ---</div>
+    <div class="small" id="time">Time Block: ---</div>
 </div>
 
 <script>
-const SECRET_KEY = "UltraSecretKey_12345";
+const SECRET_KEY = "ULTRA_COMPLEX_KEY_ChangeThis_99999";
 
+/* ---------------- TIME SYSTEM ---------------- */
 function timeBlock() {
     return Math.floor(Date.now() / 1000 / 30);
 }
 
-/* simple hash function (frontend demo) */
-async function hash(text) {
+/* ---------------- HASH ENGINE ---------------- */
+async function hash(data) {
     const enc = new TextEncoder();
-    const buf = await crypto.subtle.digest("SHA-256", enc.encode(text));
-    return Array.from(new Uint8Array(buf))
+    const buf = await crypto.subtle.digest("SHA-256", enc.encode(data));
+    return [...new Uint8Array(buf)]
         .map(b => b.toString(16).padStart(2, "0"))
         .join("");
 }
 
-/* CODE 1 */
+/* ---------------- LAYERED ENTROPY ---------------- */
+function entropyMix(n, t, tag) {
+    return `${tag}|${n ^ (t << 2)}|${(n + t) * 997}|${SECRET_KEY}`;
+}
+
+/* ---------------- CODE 1 (fast secure path) ---------------- */
 async function code1(n, t) {
-    return hash("C1-" + n + "-" + t + SECRET_KEY);
+    let seed = entropyMix(n, t, "A1");
+    return hash(seed);
 }
 
-/* CODE 2 */
+/* ---------------- CODE 2 (multi-step transformation) ---------------- */
 async function code2(n, t) {
-    return hash("C2-" + (n * 2) + "-" + t + SECRET_KEY);
-}
+    let seed = entropyMix(n * 3, t ^ 1337, "B2");
+    let h = await hash(seed);
 
-/* CODE 3 (heavier mix) */
-async function code3(n, t) {
-    let base = await hash("C3-" + (n + t) + SECRET_KEY);
-
-    for (let i = 0; i < 50000; i++) {
-        base = await hash(base + i);
+    for (let i = 0; i < 20000; i++) {
+        h = await hash(h + i + t);
     }
 
-    return base;
+    return h;
 }
 
+/* ---------------- CODE 3 (heavy chaotic system) ---------------- */
+async function code3(n, t) {
+    let seed = entropyMix(n + t, t * 7, "C3");
+
+    let h = await hash(seed);
+
+    for (let i = 0; i < 60000; i++) {
+        h = await hash(h + (i ^ t) + SECRET_KEY);
+    }
+
+    return h;
+}
+
+/* ---------------- UPDATE LOOP ---------------- */
 let interval;
 
 async function update() {
     let n = document.getElementById("num").value;
     if (!n) return;
 
+    n = parseInt(n);
     let t = timeBlock();
 
-    document.getElementById("time").innerText = "Time block: " + t;
+    document.getElementById("time").innerText = "Time Block: " + t;
 
     let [a, b, c] = await Promise.all([
         code1(n, t),
@@ -132,10 +146,11 @@ async function update() {
     document.getElementById("c3").innerText = "Code 3: " + c;
 }
 
+/* ---------------- START ---------------- */
 function start() {
     clearInterval(interval);
     update();
-    interval = setInterval(update, 3000); // refresh every 3 sec
+    interval = setInterval(update, 3000);
 }
 </script>
 
