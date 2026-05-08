@@ -1,34 +1,28 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<title>Ultra 3 Secret Code System</title>
+<title>Bank-Level Secret System</title>
 
 <style>
 body {
     font-family: Arial;
-    background: radial-gradient(circle, #0f172a, #020617);
+    background: #020617;
     color: white;
     text-align: center;
-    padding-top: 50px;
+    padding-top: 60px;
 }
 
-input {
+input, button {
     padding: 12px;
-    width: 240px;
+    font-size: 16px;
     border-radius: 8px;
     border: none;
-    font-size: 16px;
 }
 
 button {
-    padding: 12px 22px;
-    margin-top: 10px;
-    border-radius: 8px;
-    border: none;
     background: #22d3ee;
-    font-weight: bold;
     cursor: pointer;
+    margin-top: 10px;
 }
 
 .box {
@@ -37,120 +31,42 @@ button {
     padding: 20px;
     display: inline-block;
     border-radius: 12px;
-    width: 85%;
-    max-width: 800px;
+    width: 80%;
+    max-width: 700px;
     word-break: break-all;
-    backdrop-filter: blur(8px);
-}
-
-.code {
-    margin: 12px 0;
-    font-size: 13px;
-}
-
-.small {
-    font-size: 12px;
-    opacity: 0.6;
 }
 </style>
 </head>
 
 <body>
 
-<h1>🔐 Ultra 3-Code Generator</h1>
+<h1>🏦 Bank-Level Secret Code System</h1>
 
 <input id="num" type="number" placeholder="Enter number">
 <br>
-<button onclick="start()">Generate & Auto Update</button>
+<button onclick="generate()">Generate Secure Token</button>
 
 <div class="box">
-    <div class="code" id="c1">Code 1: ---</div>
-    <div class="code" id="c2">Code 2: ---</div>
-    <div class="code" id="c3">Code 3: ---</div>
-    <div class="small" id="time">Time Block: ---</div>
+    <p><b>Secure Token:</b></p>
+    <p id="out">---</p>
+    <p id="time">---</p>
 </div>
 
 <script>
-const SECRET_KEY = "ULTRA_COMPLEX_KEY_ChangeThis_99999";
+async function generate() {
+    let number = document.getElementById("num").value;
 
-/* ---------------- TIME SYSTEM ---------------- */
-function timeBlock() {
-    return Math.floor(Date.now() / 1000 / 30);
-}
+    let res = await fetch("/api/generate", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ number })
+    });
 
-/* ---------------- HASH ENGINE ---------------- */
-async function hash(data) {
-    const enc = new TextEncoder();
-    const buf = await crypto.subtle.digest("SHA-256", enc.encode(data));
-    return [...new Uint8Array(buf)]
-        .map(b => b.toString(16).padStart(2, "0"))
-        .join("");
-}
+    let data = await res.json();
 
-/* ---------------- LAYERED ENTROPY ---------------- */
-function entropyMix(n, t, tag) {
-    return `${tag}|${n ^ (t << 2)}|${(n + t) * 997}|${SECRET_KEY}`;
-}
-
-/* ---------------- CODE 1 (fast secure path) ---------------- */
-async function code1(n, t) {
-    let seed = entropyMix(n, t, "A1");
-    return hash(seed);
-}
-
-/* ---------------- CODE 2 (multi-step transformation) ---------------- */
-async function code2(n, t) {
-    let seed = entropyMix(n * 3, t ^ 1337, "B2");
-    let h = await hash(seed);
-
-    for (let i = 0; i < 20000; i++) {
-        h = await hash(h + i + t);
-    }
-
-    return h;
-}
-
-/* ---------------- CODE 3 (heavy chaotic system) ---------------- */
-async function code3(n, t) {
-    let seed = entropyMix(n + t, t * 7, "C3");
-
-    let h = await hash(seed);
-
-    for (let i = 0; i < 60000; i++) {
-        h = await hash(h + (i ^ t) + SECRET_KEY);
-    }
-
-    return h;
-}
-
-/* ---------------- UPDATE LOOP ---------------- */
-let interval;
-
-async function update() {
-    let n = document.getElementById("num").value;
-    if (!n) return;
-
-    n = parseInt(n);
-    let t = timeBlock();
-
-    document.getElementById("time").innerText = "Time Block: " + t;
-
-    let [a, b, c] = await Promise.all([
-        code1(n, t),
-        code2(n, t),
-        code3(n, t)
-    ]);
-
-    document.getElementById("c1").innerText = "Code 1: " + a;
-    document.getElementById("c2").innerText = "Code 2: " + b;
-    document.getElementById("c3").innerText = "Code 3: " + c;
-}
-
-/* ---------------- START ---------------- */
-function start() {
-    clearInterval(interval);
-    update();
-    interval = setInterval(update, 3000);
+    document.getElementById("out").innerText = data.token;
+    document.getElementById("time").innerText =
+        "Time Block: " + data.time_block;
 }
 </script>
 
