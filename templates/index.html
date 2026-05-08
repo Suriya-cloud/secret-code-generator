@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Bank-Level Secret System</title>
+
+<style>
+body {
+    font-family: Arial;
+    background: #020617;
+    color: white;
+    text-align: center;
+    padding-top: 60px;
+}
+
+input, button {
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: none;
+}
+
+button {
+    background: #22d3ee;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.box {
+    margin-top: 25px;
+    background: rgba(255,255,255,0.05);
+    padding: 20px;
+    display: inline-block;
+    border-radius: 12px;
+    width: 80%;
+    max-width: 700px;
+    word-break: break-all;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🏦 Bank-Level Secret Code System</h1>
+
+<input id="num" type="number" placeholder="Enter number">
+<br>
+<button onclick="generate()">Generate Secure Token</button>
+
+<div class="box">
+    <p><b>Secure Token:</b></p>
+    <p id="out">---</p>
+    <p id="time">---</p>
+</div>
+
+<script>
+async function generate() {
+    let number = document.getElementById("num").value;
+
+    let res = await fetch("/api/generate", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ number })
+    });
+
+    let data = await res.json();
+
+    document.getElementById("out").innerText = data.token;
+    document.getElementById("time").innerText =
+        "Time Block: " + data.time_block;
+}
+</script>
+
+</body>
+</html>
