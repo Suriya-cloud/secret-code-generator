@@ -1,617 +1,110 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Secret Code Generator | Time-Based Hash Cipher</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8">
+<title>Secret Code Generator</title>
 
-        body {
-            background: linear-gradient(145deg, #0a0f1e 0%, #0c1222 100%);
-            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, 'Roboto', monospace;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1.5rem;
-        }
+<style>
+    body {
+        font-family: Arial;
+        background: #0f172a;
+        color: white;
+        text-align: center;
+        padding-top: 80px;
+    }
 
-        /* main card container */
-        .vault-card {
-            max-width: 620px;
-            width: 100%;
-            background: rgba(18, 25, 45, 0.75);
-            backdrop-filter: blur(14px);
-            border-radius: 3rem;
-            border: 1px solid rgba(72, 187, 255, 0.25);
-            box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(0, 255, 255, 0.05) inset;
-            overflow: hidden;
-            transition: all 0.2s ease;
-        }
+    input {
+        padding: 10px;
+        width: 220px;
+        font-size: 16px;
+        border-radius: 6px;
+        border: none;
+    }
 
-        /* header with glitch effect */
-        .header {
-            padding: 2rem 2rem 1rem 2rem;
-            border-bottom: 1px dashed rgba(0, 255, 255, 0.3);
-            background: rgba(0, 10, 20, 0.4);
-        }
+    button {
+        padding: 10px 20px;
+        margin-top: 10px;
+        cursor: pointer;
+        border-radius: 6px;
+        border: none;
+        background: #38bdf8;
+        color: black;
+        font-weight: bold;
+    }
 
-        h1 {
-            font-size: 2rem;
-            font-weight: 700;
-            letter-spacing: -0.02em;
-            background: linear-gradient(135deg, #ffffff, #7bc5ff, #2dd4bf);
-            background-clip: text;
-            -webkit-background-clip: text;
-            color: transparent;
-            text-shadow: 0 2px 5px rgba(0, 20, 50, 0.3);
-            display: inline-block;
-        }
+    .box {
+        margin-top: 30px;
+        background: #1e293b;
+        padding: 20px;
+        display: inline-block;
+        border-radius: 10px;
+        width: 80%;
+        max-width: 600px;
+        word-break: break-all;
+    }
 
-        .badge {
-            background: rgba(0, 255, 255, 0.12);
-            border-radius: 100px;
-            padding: 0.3rem 0.9rem;
-            font-size: 0.75rem;
-            font-weight: 500;
-            color: #7bc9ff;
-            border: 0.5px solid rgba(0, 255, 255, 0.4);
-            margin-left: 1rem;
-            letter-spacing: 0.3px;
-            backdrop-filter: blur(4px);
-        }
-
-        .sub {
-            color: #8e9bb5;
-            margin-top: 0.6rem;
-            font-size: 0.85rem;
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-            font-family: monospace;
-        }
-
-        /* main content */
-        .content {
-            padding: 2rem;
-        }
-
-        .input-group {
-            margin-bottom: 2rem;
-        }
-
-        label {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-weight: 600;
-            color: #cbd5ff;
-            margin-bottom: 0.75rem;
-            font-size: 0.9rem;
-            letter-spacing: 0.3px;
-        }
-
-        label i {
-            font-style: normal;
-            font-weight: 700;
-            background: #1e2a47;
-            width: 24px;
-            height: 24px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 8px;
-            font-size: 0.8rem;
-            color: #7bc5ff;
-        }
-
-        .number-input-wrapper {
-            display: flex;
-            gap: 0.8rem;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-
-        input {
-            flex: 2;
-            background: #0f1629;
-            border: 1.5px solid #2a3755;
-            padding: 1rem 1.2rem;
-            border-radius: 2rem;
-            font-size: 1.2rem;
-            font-weight: 500;
-            color: #ffffff;
-            font-family: 'JetBrains Mono', 'Fira Code', monospace;
-            transition: all 0.2s;
-            outline: none;
-        }
-
-        input:focus {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
-            background: #0b1022;
-        }
-
-        input::placeholder {
-            color: #4a5679;
-            font-weight: 400;
-            font-size: 0.95rem;
-        }
-
-        .generate-btn {
-            background: linear-gradient(95deg, #1e2f5a, #0a1a3a);
-            border: 1px solid rgba(0, 255, 255, 0.6);
-            color: white;
-            font-weight: 700;
-            padding: 1rem 1.8rem;
-            border-radius: 3rem;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.6rem;
-            backdrop-filter: blur(4px);
-            font-family: inherit;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-        }
-
-        .generate-btn:hover {
-            background: linear-gradient(95deg, #2b4080, #10254f);
-            border-color: #2dd4bf;
-            transform: scale(0.98);
-            box-shadow: 0 0 12px rgba(0, 200, 255, 0.3);
-        }
-
-        .result-area {
-            background: #050b17e0;
-            border-radius: 2rem;
-            padding: 1.2rem;
-            margin-top: 1.5rem;
-            border: 1px solid #2a3f6e;
-            transition: all 0.3s;
-        }
-
-        .secret-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            flex-wrap: wrap;
-            gap: 10px;
-            border-bottom: 1px dashed #2a3f6e;
-            padding-bottom: 0.6rem;
-            margin-bottom: 1rem;
-        }
-
-        .secret-label {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            font-weight: 600;
-            color: #6795cf;
-        }
-
-        .timer-chip {
-            background: #101a2c;
-            border-radius: 40px;
-            padding: 0.25rem 0.8rem;
-            font-size: 0.7rem;
-            font-family: monospace;
-            color: #b9f2ff;
-            border: 1px solid #2dd4bf60;
-        }
-
-        .code-box {
-            background: #01040f;
-            padding: 1rem;
-            border-radius: 1.5rem;
-            word-break: break-all;
-            font-family: 'JetBrains Mono', 'Courier New', monospace;
-            font-size: 0.9rem;
-            font-weight: 500;
-            color: #b7e4ff;
-            letter-spacing: 0.3px;
-            border: 1px solid #2b4870;
-            box-shadow: inset 0 0 8px #00000055;
-            transition: 0.1s;
-        }
-
-        .generated-hash {
-            font-size: 1rem;
-            line-height: 1.4;
-        }
-
-        .copy-btn {
-            background: none;
-            border: 1px solid #3d5a80;
-            padding: 0.5rem 1rem;
-            border-radius: 2rem;
-            font-size: 0.7rem;
-            font-weight: 600;
-            color: #b0d4ff;
-            cursor: pointer;
-            margin-top: 0.8rem;
-            transition: 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .copy-btn:hover {
-            background: #1e2d4e;
-            border-color: #7bc5ff;
-            color: white;
-        }
-
-        .status-msg {
-            margin-top: 1rem;
-            font-size: 0.75rem;
-            color: #52c9b4;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            background: #0e1628aa;
-            border-radius: 2rem;
-            padding: 0.4rem 1rem;
-            width: fit-content;
-        }
-
-        .loader {
-            display: inline-block;
-            width: 14px;
-            height: 14px;
-            border: 2px solid rgba(0, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: #0ff;
-            animation: spin 0.7s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .footer-note {
-            margin-top: 2rem;
-            text-align: center;
-            font-size: 0.7rem;
-            color: #5b6e93;
-            border-top: 1px solid #1e2b44;
-            padding-top: 1.5rem;
-        }
-
-        button:active {
-            transform: scale(0.97);
-        }
-
-        @media (max-width: 500px) {
-            .content {
-                padding: 1.5rem;
-            }
-            .generate-btn {
-                padding: 0.8rem 1.4rem;
-            }
-            .code-box {
-                font-size: 0.7rem;
-            }
-            h1 {
-                font-size: 1.5rem;
-            }
-        }
-    </style>
+    .small {
+        font-size: 12px;
+        opacity: 0.7;
+    }
+</style>
 </head>
+
 <body>
 
-<div class="vault-card">
-    <div class="header">
-        <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
-            <h1>⚡ SECRET CODE VAULT</h1>
-            <span class="badge">TOTP-Style · SHA256</span>
-        </div>
-        <div class="sub">
-            <span>🔐 Time‑based hash generator</span>
-            <span>⏱️ 30s rotating window</span>
-            <span>🧩 Immutable integrity</span>
-        </div>
-    </div>
+<h1>🔐 Secret Code Generator</h1>
 
-    <div class="content">
-        <div class="input-group">
-            <label><i>#️⃣</i> ENTER SECRET NUMBER (Integer)</label>
-            <div class="number-input-wrapper">
-                <input type="number" id="secretNumber" placeholder="e.g., 4291, 777, 2025" value="1337">
-                <button class="generate-btn" id="genBtn">
-                    <span>✨</span> GENERATE SECRET CODE
-                </button>
-            </div>
-        </div>
+<input id="num" type="number" placeholder="Enter number">
+<br>
+<button onclick="generate()">Generate Code</button>
 
-        <!-- Result & dynamic code block -->
-        <div class="result-area" id="resultArea" style="opacity: 0.95;">
-            <div class="secret-header">
-                <span class="secret-label">🔑 ONE‑TIME SECURE HASH</span>
-                <span class="timer-chip" id="timerIndicator">⏳ waiting</span>
-            </div>
-            <div class="code-box">
-                <div id="generatedCodeDisplay" class="generated-hash" style="min-height: 68px; word-break: break-all;">
-                    —  no code generated yet —
-                </div>
-            </div>
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
-                <button class="copy-btn" id="copyCodeBtn">📋 COPY SECRET CODE</button>
-                <div id="liveStatus" class="status-msg">
-                    <span>🟢</span> Ready — enter number & generate
-                </div>
-            </div>
-        </div>
-        <div class="footer-note">
-            ⚡ Time‑window: 30 seconds · secret salt embedded server‑side<br>
-            🔒 Each code is unique to {number + timeblock + masterKey}
-        </div>
-    </div>
+<div class="box">
+    <h3>Output</h3>
+    <p id="result">---</p>
+    <p class="small">Changes every 30 seconds</p>
 </div>
 
 <script>
-    // --------------------------------------------------------------
-    // Client-side integration with Flask backend (deployed separately)
-    // Host the Flask app on PythonAnywhere / Render / Railway, 
-    // and update API_BASE_URL accordingly.
-    //
-    // For local testing: use "http://127.0.0.1:5000" (if Flask runs locally)
-    // For production: replace with your backend domain (e.g. https://your-flask-app.onrender.com)
-    // --------------------------------------------------------------
-    
-    // 📡 IMPORTANT: change this to your actual Flask backend URL when deployed.
-    // Example: const API_BASE_URL = "https://secrete-code-generator.onrender.com";
-    // For now, we use relative path ONLY if same origin, but typical GitHub Pages + external backend.
-    // Below we set placeholder – you must update this variable before deploying to production.
-    const API_BASE_URL = "";   // ← set to your backend root URL (e.g. "https://myflaskapp.herokuapp.com")
-                               // If you leave empty, the script will try to use relative path,
-                               // which works only if same server (development). For GitPages set full backend URL.
-    
-    // Determine effective API endpoint.
-    // We also provide fallback detection: if window.location.port is 5500 or 5000, preserve local dev.
-    let effectiveBase = API_BASE_URL;
-    if (!effectiveBase) {
-        // Auto-detect: if current host is localhost or 127.0.0.1 with port 5000, assume flask classic.
-        if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
-            if (window.location.port === "5000" || window.location.port === "5500") {
-                effectiveBase = window.location.origin; // use same origin
-            } else {
-                // default fallback for local flask default port
-                effectiveBase = "http://127.0.0.1:5000";
-            }
-        } else {
-            // For GitHub Pages (production) we MUST have explicit backend.
-            // Since there's no default, we warn and show instructions in console.
-            // but we also simulate? no, we must not simulate security. Instead we display demo notice.
-            // We'll handle it by showing message: Backend not configured.
-            effectiveBase = null;
-        }
-    }
-    
-    // DOM elements
-    const secretNumberInput = document.getElementById('secretNumber');
-    const generateBtn = document.getElementById('genBtn');
-    const generatedCodeDisplay = document.getElementById('generatedCodeDisplay');
-    const copyBtn = document.getElementById('copyCodeBtn');
-    const liveStatusSpan = document.getElementById('liveStatus');
-    const timerIndicator = document.getElementById('timerIndicator');
-    
-    let currentGeneratedCode = "";
-    let countdownInterval = null;
-    let lastTimeBlock = null;
-    
-    // Helper: update timer display based on current unix timestamp (seconds)
-    function updateTimerDisplay() {
-        const nowSec = Math.floor(Date.now() / 1000);
-        const timeBlock = Math.floor(nowSec / 30);
-        const windowStart = timeBlock * 30;
-        const windowEnd = windowStart + 30;
-        const remaining = windowEnd - nowSec;
-        const remainingSec = remaining >= 0 ? remaining : 0;
-        timerIndicator.innerText = `⏱️ code window: ${remainingSec}s left`;
-        if (remainingSec <= 5 && remainingSec > 0) {
-            timerIndicator.style.background = "#ff3b3b30";
-            timerIndicator.style.borderColor = "#ff8866";
-        } else {
-            timerIndicator.style.background = "#101a2c";
-            timerIndicator.style.borderColor = "#2dd4bf60";
-        }
-        return { timeBlock, remainingSec };
-    }
-    
-    // Check if the current generated code (based on same number + current block) remains valid
-    // we don't auto regenerate here, but we mark if code expired.
-    function checkCodeExpiration() {
-        if (!currentGeneratedCode) return false;
-        const currentBlock = Math.floor(Date.now() / 1000 / 30);
-        if (lastTimeBlock !== null && currentBlock !== lastTimeBlock) {
-            // Time block changed: previously generated code is now technically expired
-            generatedCodeDisplay.innerHTML = `<span style="color:#ff9f7c;">⚠️ EXPIRED — please regenerate (time block changed)</span><br><span style="font-size:0.7rem;">${currentGeneratedCode.substring(0, 32)}...</span>`;
-            liveStatusSpan.innerHTML = "<span>🔴</span> Code expired · click generate again";
-            return false;
-        }
-        return true;
-    }
-    
-    // Refresh timer each second + expire visual
-    function startTimerUpdater() {
-        if (countdownInterval) clearInterval(countdownInterval);
-        countdownInterval = setInterval(() => {
-            const { timeBlock: newBlock, remainingSec } = updateTimerDisplay();
-            if (currentGeneratedCode && lastTimeBlock !== null && newBlock !== lastTimeBlock) {
-                // Expire visual instantly
-                generatedCodeDisplay.innerHTML = `<span style="color:#ffaa88;">⏰ CODE EXPIRED (new 30s window)</span><br><span style="font-size:0.7rem; opacity:0.7;">Old hash: ${currentGeneratedCode.substring(0, 20)}...</span>`;
-                liveStatusSpan.innerHTML = "<span>⚠️</span> Code expired · generate new one";
-                currentGeneratedCode = "";
-                lastTimeBlock = null;
-            } else if (currentGeneratedCode && lastTimeBlock !== null && remainingSec <= 3) {
-                // add warning style
-                if (generatedCodeDisplay.innerHTML.includes("EXPIRED") === false && generatedCodeDisplay.innerHTML.includes("expiring soon") === false) {
-                    // don't override whole text but add little warning annotation if not already
-                    if (!generatedCodeDisplay.innerText.includes("expiring soon")) {
-                        const currentHash = currentGeneratedCode;
-                        generatedCodeDisplay.innerHTML = `<span style="color:#f5cb5c;">⌛ expiring soon • regenerate after countdown</span><br><span style="font-family:monospace;font-size:0.85rem;">${currentHash}</span>`;
-                    }
-                }
-            } else {
-                // update only timer appearance without overwriting code unless it's still valid
-                if (currentGeneratedCode && lastTimeBlock !== null && newBlock === lastTimeBlock && !generatedCodeDisplay.innerHTML.includes(currentGeneratedCode)) {
-                    // restore if overwritten by expiry message but still valid (corner case)
-                    generatedCodeDisplay.innerHTML = `<span style="font-family:monospace;">${currentGeneratedCode}</span>`;
-                    liveStatusSpan.innerHTML = "<span>🟢</span> Code active · time-valid";
-                }
-            }
-        }, 1000);
-    }
-    
-    // main fetch logic: call Flask /generate endpoint
-    async function generateSecretCode(numberValue) {
-        if (!effectiveBase) {
-            // backend not configured message for GitHub Pages deployment guidance.
-            generatedCodeDisplay.innerHTML = `⚠️ BACKEND NOT CONFIGURED ⚠️<br><span style="font-size:0.75rem;">This frontend requires a Flask backend. Set API_BASE_URL to your Python backend domain (Render, PythonAnywhere, etc).<br><br>🔧 Flask endpoint must have routes: "/generate" (POST) returning {secret_code, valid_for}.<br>Current sample backend code is ready for deployment.</span>`;
-            liveStatusSpan.innerHTML = "❌ Backend missing — set API URL";
-            return;
-        }
-        
-        // Show loading state
-        const originalBtnText = generateBtn.innerHTML;
-        generateBtn.innerHTML = `<span class="loader"></span> Generating...`;
-        generateBtn.disabled = true;
-        liveStatusSpan.innerHTML = "<span>⏳</span> contacting secure vault...";
-        
-        try {
-            const endpoint = `${effectiveBase}/generate`;
-            const response = await fetch(endpoint, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Accept": "application/json"
-                },
-                body: JSON.stringify({ number: numberValue })
-            });
-            
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`Server error ${response.status}: ${errorText.substring(0, 80)}`);
-            }
-            
-            const data = await response.json();
-            if (data.secret_code) {
-                currentGeneratedCode = data.secret_code;
-                const nowBlock = Math.floor(Date.now() / 1000 / 30);
-                lastTimeBlock = nowBlock;
-                generatedCodeDisplay.innerHTML = `<span style="font-family: 'JetBrains Mono', monospace; font-weight:500;">${currentGeneratedCode}</span>`;
-                const validity = data.valid_for || "30 seconds";
-                liveStatusSpan.innerHTML = `<span>✅</span> Code generated · valid: ${validity}`;
-                
-                // small copy of timer animation update
-                updateTimerDisplay();
-            } else {
-                throw new Error("Invalid response format");
-            }
-        } catch (err) {
-            console.error("Generation failed:", err);
-            let errorMsg = err.message;
-            if (errorMsg.includes("Failed to fetch") || errorMsg.includes("NetworkError")) {
-                errorMsg = "Backend unreachable. Ensure Flask server is running and CORS configured, and API_BASE_URL is correct.";
-            }
-            generatedCodeDisplay.innerHTML = `⚠️ GENERATION ERROR ⚠️<br><span style="font-size:0.75rem;">${errorMsg}</span><br><span style="font-size:0.7rem;">Check backend URL or CORS setup</span>`;
-            liveStatusSpan.innerHTML = "❌ Request failed — check console";
-            currentGeneratedCode = "";
-            lastTimeBlock = null;
-        } finally {
-            generateBtn.innerHTML = originalBtnText;
-            generateBtn.disabled = false;
-        }
-    }
-    
-    // Generate handler: read number & call
-    function onGenerate() {
-        let rawNumber = secretNumberInput.value.trim();
-        if (rawNumber === "") {
-            liveStatusSpan.innerHTML = "⚠️ Please enter a secret number";
-            return;
-        }
-        const num = Number(rawNumber);
-        if (isNaN(num) || !Number.isInteger(num)) {
-            liveStatusSpan.innerHTML = "❌ Must be a valid integer";
-            return;
-        }
-        generateSecretCode(num);
-    }
-    
-    // copy to clipboard handler
-    async function copyCodeToClipboard() {
-        if (!currentGeneratedCode) {
-            liveStatusSpan.innerHTML = "⚠️ No active code — generate first";
-            return;
-        }
-        // also check if current time block still matches lastTimeBlock
-        const currentBlock = Math.floor(Date.now() / 1000 / 30);
-        if (lastTimeBlock !== null && currentBlock !== lastTimeBlock) {
-            liveStatusSpan.innerHTML = "❌ Cannot copy: code expired (window rotated)";
-            return;
-        }
-        try {
-            await navigator.clipboard.writeText(currentGeneratedCode);
-            liveStatusSpan.innerHTML = "📋 Copied! Secret code in clipboard";
-            setTimeout(() => {
-                if (currentGeneratedCode && lastTimeBlock !== null && Math.floor(Date.now() / 1000 / 30) === lastTimeBlock)
-                    liveStatusSpan.innerHTML = "<span>🟢</span> Code active · time-valid";
-                else if(!currentGeneratedCode)
-                    liveStatusSpan.innerHTML = "<span>⚡</span> Ready — generate secret";
-                else
-                    liveStatusSpan.innerHTML = "<span>🔁</span> Code ready but window may have changed";
-            }, 2000);
-        } catch (err) {
-            liveStatusSpan.innerHTML = "⚠️ Unable to copy";
-        }
-    }
-    
-    // check on load if backend hint
-    function validateBackendOnStart() {
-        if (!effectiveBase) {
-            generatedCodeDisplay.innerHTML = `🔐 <strong>DEPLOYMENT NOTICE</strong><br><br>This static frontend requires a dedicated Flask backend.<br><br>
-            ✅ <strong>Steps to host complete project:</strong><br>
-            1️⃣ Deploy the provided Flask app (app.py) on Render / PythonAnywhere / Railway.<br>
-            2️⃣ Enable CORS on Flask (flask_cors) for security.<br>
-            3️⃣ Copy the live backend URL and set <span style="background:#111;padding:2px 5px;">API_BASE_URL</span> variable in this script.<br>
-            4️⃣ Re-deploy index.html to GitHub Pages.<br><br>
-            🧪 For local test: run Flask locally (port 5000) and open this HTML via localhost:5000.<br>
-            📌 Flask endpoint uses POST /generate with JSON { "number": integer }`;
-            liveStatusSpan.innerHTML = "🌐 backend required — see instructions";
-        } else {
-            generatedCodeDisplay.innerHTML = "— ready — enter secret number & click generate";
-            // small test connection optional: no auto ping.
-        }
-        updateTimerDisplay();
-    }
-    
-    // Event listeners
-    generateBtn.addEventListener('click', onGenerate);
-    copyBtn.addEventListener('click', copyCodeToClipboard);
-    secretNumberInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') onGenerate();
-    });
-    
-    // init timers & show status
-    startTimerUpdater();
-    validateBackendOnStart();
-    
-    // small additional: if effective base set but still CORS issues notify.
-    window.addEventListener('load', () => {
-        if (effectiveBase) {
-            console.log(`🔌 Backend target: ${effectiveBase}`);
-        } else {
-            console.warn("⚠️ Secret Code frontend: API_BASE_URL not set. Provide Flask backend URL for full functionality.");
-        }
-    });
+/* -------------------------------------------------------
+   SECRET KEY (visible in frontend — NOT truly secure)
+------------------------------------------------------- */
+const SECRET_KEY = "MyHiddenKey_12345";
+
+/* -------------------------------------------------------
+   TIME BLOCK (changes every 30 seconds)
+------------------------------------------------------- */
+function timeBlock() {
+    return Math.floor(Date.now() / 1000 / 30);
+}
+
+/* -------------------------------------------------------
+   SHA-256 helper
+------------------------------------------------------- */
+async function sha256(text) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(text);
+    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+
+    return Array.from(new Uint8Array(hashBuffer))
+        .map(b => b.toString(16).padStart(2, "0"))
+        .join("");
+}
+
+/* -------------------------------------------------------
+   MAIN GENERATOR
+------------------------------------------------------- */
+async function generate() {
+    let number = document.getElementById("num").value;
+    let tb = timeBlock();
+
+    let raw = number + "-" + tb + "-" + SECRET_KEY;
+
+    let hash = await sha256(raw);
+
+    document.getElementById("result").innerText =
+        hash + "\n\n(Time block: " + tb + ")";
+}
 </script>
+
 </body>
 </html>
